@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import { HiOutlineLogout, HiOutlineMail, HiOutlineUser } from "react-icons/hi";
+import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 
 export default function Home() {
@@ -19,7 +19,7 @@ export default function Home() {
 
   const displayName = currentUser?.displayName || currentUser?.email?.split("@")[0] || "User";
   const photoURL = currentUser?.photoURL;
-  const email = currentUser?.email;
+  const email = currentUser?.email || currentUser?.providerData?.[0]?.email || "N/A";
   const createdAt = currentUser?.metadata?.creationTime ? new Date(currentUser.metadata.creationTime).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",

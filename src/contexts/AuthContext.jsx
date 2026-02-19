@@ -1,12 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-  updateProfile,
-} from "firebase/auth";
+import {createUserWithEmailAndPassword,signInWithEmailAndPassword,signInWithPopup,signOut,GithubAuthProvider,onAuthStateChanged,updateProfile} from "firebase/auth";
 import { auth, googleProvider, githubProvider } from "../firebase";
 
 const AuthContext = createContext();
@@ -39,8 +32,16 @@ export function AuthProvider({ children }) {
   }
 
   // GitHub sign-in
-  function loginWithGithub() {
-    return signInWithPopup(auth, githubProvider);
+  async function loginWithGithub() {
+    const result = await signInWithPopup(auth, githubProvider);
+    if(!result.user.email){
+      const credential = GithubAuthProvider.credentialFromResult(result);
+      const response = await fetch('https://api.github.com/user/emails',{headers: {Authorization: `token ${credential.accessToken}`}});
+      const emails = await response.json();
+      const data = emails.find((email) => email.primary)?.email || emails[0]?.email;
+      return data;
+    }
+    return result;
   }
 
   // Logout
